@@ -44,7 +44,7 @@ for transposed_block in zip(*group(data, key_size)):
     results = list()
     for c in asciiChrSet:
         dt = singleByteXorDecrypt(concatBytes(transposed_block), c)
-        results.append((data, c, english_test(dt)))
+        results.append((dt, c, english_test(dt)))
     key.append(reduce(lambda x, y: max(x, y, key=lambda d: d[2]), results)[1])
 
 print(f"key string: {''.join(key)}")
