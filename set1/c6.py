@@ -30,26 +30,28 @@ def sample_blocks(data: bytes, block_len: int):
     for bs in take(4, group(data, block_len)):
         yield concatBytes(bs)
 
-data = decodebytes(open('6.txt', 'rb').read())
+if __name__ == '__main__':
 
-key_size = min(
-    (sum(binHammingDistance(i, j) / ks for i, j in combinations(sample_blocks(data, ks), 2)) / 6, ks)
-    for ks in range(2, 41)
-)[1]
+    data = decodebytes(open('6.txt', 'rb').read())
 
-print(f"key size: {key_size}")
+    key_size = min(
+        (sum(binHammingDistance(i, j) / ks for i, j in combinations(sample_blocks(data, ks), 2)) / 6, ks)
+        for ks in range(2, 41)
+    )[1]
 
-key = list()
-for transposed_block in zip(*group(data, key_size)):
-    results = list()
-    for c in asciiChrSet:
-        dt = singleByteXorDecrypt(concatBytes(transposed_block), c)
-        results.append((dt, c, english_test(dt)))
-    key.append(reduce(lambda x, y: max(x, y, key=lambda d: d[2]), results)[1])
+    print(f"key size: {key_size}")
 
-print(f"key string: {''.join(key)}")
+    key = list()
+    for transposed_block in zip(*group(data, key_size)):
+        results = list()
+        for c in asciiChrSet:
+            dt = singleByteXorDecrypt(concatBytes(transposed_block), c)
+            results.append((dt, c, english_test(dt)))
+        key.append(reduce(lambda x, y: max(x, y, key=lambda d: d[2]), results)[1])
 
-result = ''.join(chr(d ^ k) for d, k in zip(data, cycle(ord(c) for c in key)))
+    print(f"key string: {''.join(key)}")
 
-print("decrypted text:\n")
-print(result.replace('\x00', ' '))
+    result = ''.join(chr(d ^ k) for d, k in zip(data, cycle(ord(c) for c in key)))
+
+    print("decrypted text:\n")
+    print(result.replace('\x00', ' '))
